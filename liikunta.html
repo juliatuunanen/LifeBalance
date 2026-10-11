@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <link href="tyyli.css" rel="stylesheet">
+    <title>Oma liikunta – LifeBalance</title>
+</head>
+<body>
+    <header>
+        <h1>LifeBalance</h1>
+    </header>
+
+    <main>
+        <h2>Liikuntasi</h2>
+        <p>Täällä pystyt seuraamaan liikuntatietojasi.</p>
+        <a href="seuranta.html">← Takaisin seurantaan</a>
+        <section class="steps-card" id="steps-card">
+  <div class="steps-heading">
+    <div>
+      <p class="steps-eyebrow">PÄIVITTÄINEN AKTIIVISUUS</p>
+      <h2>👟 Päivän askeleet</h2>
+    </div>
+    <span class="steps-badge">Päivän tavoite</span>
+  </div>
+
+  <div class="steps-numbers">
+    <strong id="steps-count">0</strong>
+    <span id="steps-goal-label">/ 10 000 askelta</span>
+  </div>
+
+  <div
+    class="steps-progress"
+    id="steps-progress"
+    role="progressbar"
+    aria-label="Päivän askeltavoitteen eteneminen"
+    aria-valuemin="0"
+    aria-valuemax="10000"
+    aria-valuenow="0"
+  >
+    <div class="steps-progress-fill" id="steps-progress-fill"></div>
+  </div>
+
+  <p class="steps-message" id="steps-message">
+    Aloita pienellä askeleella! 💚
+  </p>
+
+  <label class="steps-label" for="steps-goal">Päivän askeltavoite</label>
+  <input id="steps-goal" type="number" min="1" max="100000"
+         value="10000">
+
+  <div class="steps-buttons">
+    <button type="button" data-steps-add="500">+500</button>
+    <button type="button" data-steps-add="1000">+1 000</button>
+    <button type="button" data-steps-add="2500">+2 500</button>
+  </div>
+
+  <label class="steps-label" for="steps-manual">
+    Lisää oma askelmäärä
+  </label>
+  <div class="steps-manual-row">
+    <input id="steps-manual" type="number" min="1"
+           max="100000" placeholder="Esim. 750">
+    <button type="button" id="steps-manual-add">Lisää</button>
+  </div>
+
+  <p class="steps-footnote">
+    Askeleet tallentuvat automaattisesti tähän selaimeen.
+  </p>
+</section>
+    </main>
+<script> 
+    (() => {
+  const countEl = document.getElementById("steps-count");
+  const goalEl = document.getElementById("steps-goal");
+  const goalLabel = document.getElementById("steps-goal-label");
+  const fillEl = document.getElementById("steps-progress-fill");
+  const progressEl = document.getElementById("steps-progress");
+  const messageEl = document.getElementById("steps-message");
+  const manualEl = document.getElementById("steps-manual");
+
+  // Jos tätä korttia ei ole sivulla, älä suorita koodia.
+  if (!countEl || !goalEl || !fillEl) return;
+
+  const todayKey = () => {
+    const d = new Date();
+    return "paivan-askeleet-" +
+      d.getFullYear() + "-" +
+      String(d.getMonth() + 1).padStart(2, "0") + "-" +
+      String(d.getDate()).padStart(2, "0");
+  };
+
+  const GOAL_KEY = "askeleiden-paivatavoite";
+  let steps = 0;
+
+  try {
+    const saved = JSON.parse(localStorage.getItem(todayKey()) || "0");
+    steps = Number.isFinite(saved) && saved >= 0 ? saved : 0;
+
+    const savedGoal = Number(localStorage.getItem(GOAL_KEY));
+    if (savedGoal >= 1 && savedGoal <= 100000) {
+      goalEl.value = savedGoal;
+    }
+  } catch (error) {
+    steps = 0;
+  }
+
+  function saveSteps() {
+    try {
+      localStorage.setItem(todayKey(), String(steps));
+      localStorage.setItem(GOAL_KEY, String(getGoal()));
+    } catch (error) {
+      messageEl.textContent =
+        "Tallennus ei onnistunut tässä selaimessa.";
+    }
+  }
+
+  function getGoal() {
+    const value = Number(goalEl.value);
+    return Number.isFinite(value) && value >= 1 && value <= 100000
+      ? Math.floor(value)
+      : 10000;
+  }
+
+  function formatNumber(number) {
+    return number.toLocaleString("fi-FI");
+  }
+
+  function render() {
+    const goal = getGoal();
+    const percent = Math.min(100, (steps / goal) * 100);
+
+    countEl.textContent = formatNumber(steps);
+    goalLabel.textContent = "/ " + formatNumber(goal) + " askelta";
+    fillEl.style.width = percent + "%";
+
+    progressEl.setAttribute("aria-valuemax", String(goal));
+    progressEl.setAttribute("aria-valuenow", String(steps));
+    progressEl.setAttribute(
+      "aria-valuetext",
+      `${formatNumber(steps)} askelta, ${Math.round(percent)} prosenttia tavoitteesta`
+    );
+
+    if (steps >= goal) {
+      messageEl.textContent = "Tavoite saavutettu! Hienoa työtä! 🎉";
+    } else if (steps === 0) {
+      messageEl.textContent = "Aloita pienellä askeleella! 💚";
+    } else {
+      messageEl.textContent =
+        `${formatNumber(goal - steps)} askelta tavoitteeseen. Jatka samaan malliin!`;
+    }
+  }
+
+  function addSteps(amount) {
+    if (!Number.isSafeInteger(amount) || amount < 1) return;
+
+    steps = Math.min(Number.MAX_SAFE_INTEGER, steps + amount);
+    saveSteps();
+    render();
+  }
+
+  document.querySelectorAll("#steps-card [data-steps-add]")
+    .forEach(button => {
+      button.addEventListener("click", () => {
+        addSteps(Number(button.dataset.stepsAdd));
+      });
+    });
+
+  document.getElementById("steps-manual-add")
+    ?.addEventListener("click", () => {
+      const amount = Number(manualEl.value);
+
+      if (!Number.isSafeInteger(amount) || amount < 1 ||
+          amount > 100000) {
+        manualEl.setCustomValidity(
+          "Anna askelmäärä väliltä 1–100 000."
+        );
+        manualEl.reportValidity();
+        manualEl.setCustomValidity("");
+        return;
+      }
+
+      addSteps(amount);
+      manualEl.value = "";
+    });
+
+  manualEl?.addEventListener("keydown", event => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      document.getElementById("steps-manual-add").click();
+    }
+  });
+
+  goalEl.addEventListener("change", () => {
+    const goal = Number(goalEl.value);
+
+    if (!Number.isInteger(goal) || goal < 1 || goal > 100000) {
+      goalEl.value = "10000";
+    }
+
+    saveSteps();
+    render();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

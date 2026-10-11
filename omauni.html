@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <link href="tyyli.css" rel="stylesheet">
+    <title>Oma uni – LifeBalance</title>
+</head>
+<body>
+    <header>
+        <h1>LifeBalance</h1>
+    </header>
+
+    <main>
+        <h2> Oma uni</h2>
+        <p>Täällä voit asettaa oman unitavoitteesi.</p>
+
+        <nav>
+        <a href="seuranta.html">← Takaisin seurantaan</a>
+        <a href="omauni.html" aria-current="page">Uni</a>
+        </nav>
+    <div class="unitavoite">
+    <h2>Unitavoitteesi</h2>
+
+    <div class="tavoite-numero">
+        <span id="tavoite">8</span> h
+    </div>
+
+    <p>Valitse tavoiteltu unen määrä</p>
+
+    <input
+        type="range"
+        id="tavoite-liukusaadin"
+        min="6"
+        max="10"
+        step="0.5"
+        value="8"
+    input>
+
+    <div class="saadin-tekstit">
+        <span>6 h</span>
+        <span>10 h</span>
+    </div>
+
+    <div class="tavoite-tausta">
+        <div id="tavoite-palkki"></div>
+    </div>
+
+    <p id="tavoite-teksti">
+        Tavoitteesi on 8 tuntia yössä.
+    </p>
+</div>
+    </main>
+    <script>
+        const saadin = document.getElementById("tavoite-liukusaadin");
+const tavoite = document.getElementById("tavoite");
+const palkki = document.getElementById("tavoite-palkki");
+const teksti = document.getElementById("tavoite-teksti");
+
+saadin.addEventListener("input", function() {
+    const tunnit = Number(saadin.value);
+
+    tavoite.textContent = tunnit;
+    teksti.textContent = "Tavoitteesi on " + tunnit + " tuntia yössä.";
+
+    const prosentti = ((tunnit - 6) / 4) * 100;
+    palkki.style.width = prosentti + "%";
+});
+ 
+</script>
+</body>
+</html>

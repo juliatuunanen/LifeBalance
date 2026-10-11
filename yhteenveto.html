@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <link href="tyyli.css" rel="stylesheet">
+    <title>Oma yhteenveto – LifeBalance</title>
+</head>
+<body>
+    <header>
+        <h1>LifeBalance</h1>
+    </header>
+
+    <main>
+        <h2>Yhteenveto</h2>
+        <p>Täällä saat kattavan raportin viikon hyvinvointitiedoistasi.</p>
+        <a href="seuranta.html">← Takaisin seurantaan</a>
+    </main>
+    <section class="wellness" id="wellness-summary">
+  <p class="wellness-kicker">OMA HYVINVOINTI</p>
+  <h2>Hyvinvoinnin yhteenveto 🌿</h2>
+  <p class="wellness-intro">
+    Pienet teot muodostavat hyvinvoivan päivän.
+    Kirjaa päivän tietosi ja seuraa omaa vointiasi.
+  </p>
+
+  <label for="wellness-date">Päivämäärä</label>
+  <input type="date" id="wellness-date">
+
+  <div class="wellness-grid">
+    <article class="wellness-item">
+      <span class="wellness-icon">👟</span>
+      <h3>Askeleet</h3>
+      <strong id="summary-steps">0</strong>
+      <p id="summary-steps-goal">Tavoite: 10 000 askelta</p>
+      <div class="wellness-bar">
+        <div id="summary-steps-bar"></div>
+      </div>
+      <small id="summary-steps-text">Askelmäärää ei vielä luettu.</small>
+    </article>
+
+    <article class="wellness-item">
+      <span class="wellness-icon">💧</span>
+      <h3>Vedenjuonti</h3>
+      <strong><span id="water-total">0</span> ml</strong>
+      <p>Tavoite 2 000 ml (muokattavissa koodista)</p>
+      <div class="wellness-bar">
+        <div id="water-bar"></div>
+      </div>
+      <div class="wellness-buttons">
+        <button type="button" data-water="250">+250 ml</button>
+        <button type="button" data-water="500">+500 ml</button>
+      </div>
+    </article>
+
+    <article class="wellness-item">
+      <span class="wellness-icon">🌙</span>
+      <h3>Uni</h3>
+      <strong><span id="sleep-display">–</span> h</strong>
+      <label for="sleep-hours">Nukuttu aika (tuntia)</label>
+      <input id="sleep-hours" type="number"
+             min="0" max="24" step="0.5" placeholder="Esim. 8">
+    </article>
+
+    <article class="wellness-item">
+      <span class="wellness-icon">🏃</span>
+      <h3>Liikunta</h3>
+      <strong><span id="movement-display">0</span> min</strong>
+      <label for="movement-minutes">Liikunta tänään (min)</label>
+      <input id="movement-minutes" type="number"
+             min="0" max="1440" placeholder="Esim. 30">
+    </article>
+
+    <article class="wellness-item">
+      <span class="wellness-icon">🥗</span>
+      <h3>Ateriat</h3>
+      <strong><span id="meals-display">0</span></strong>
+      <label for="meals-count">Syödyt ateriat</label>
+      <input id="meals-count" type="number"
+             min="0" max="20" placeholder="Esim. 4">
+      <small>Kirjaa aterioiden määrä.</small>
+    </article>
+
+    <article class="wellness-item">
+      <span class="wellness-icon">😊</span>
+      <h3>Päivän fiilis</h3>
+      <label for="mood-select">Miltä sinusta tuntuu?</label>
+      <select id="mood-select">
+        <option value="">Valitse fiilis</option>
+        <option value="😊 Hyvä">😊 Hyvä</option>
+        <option value="😌 Rauhallinen">😌 Rauhallinen</option>
+        <option value="😐 Ihan tavallinen">😐 Ihan tavallinen</option>
+        <option value="😴 Väsynyt">😴 Väsynyt</option>
+        <option value="😟 Kuormittunut">😟 Kuormittunut</option>
+      </select>
+      <p id="mood-message">Kaikki tunteet ovat sallittuja.</p>
+    </article>
+  </div>
+
+  <div class="wellness-note">
+    <h3>✨ Päivän muistutus</h3>
+    <p id="wellness-tip">
+      Juo vettä, syö säännöllisesti ja pidä tarvittaessa taukoja.
+    </p>
+  </div>
+
+  <p class="wellness-saved" id="wellness-saved"
+     role="status">Tiedot tallentuvat automaattisesti.</p>
+</section>
+<script> 
+    (() => {
+  const $ = id => document.getElementById(id);
+  const section = $("wellness-summary");
+  if (!section) return;
+
+  const dateInput = $("wellness-date");
+  const WATER_GOAL = 2000;
+
+  const localDate = date => {
+    return date.getFullYear() + "-" +
+      String(date.getMonth() + 1).padStart(2, "0") + "-" +
+      String(date.getDate()).padStart(2, "0");
+  };
+
+  dateInput.value = localDate(new Date());
+
+  const dataKey = date => "hyvinvointi-" + date;
+
+  function loadData() {
+    try {
+      return JSON.parse(
+        localStorage.getItem(dataKey(dateInput.value)) || "{}"
+      );
+    } catch {
+      return {};
+    }
+  }
+
+  function saveData(data) {
+    try {
+      localStorage.setItem(
+        dataKey(dateInput.value),
+        JSON.stringify(data)
+      );
+      $("wellness-saved").textContent =
+        "✓ Tämän päivän tiedot tallennettu.";
+    } catch {
+      $("wellness-saved").textContent =
+        "Tallennus ei onnistunut tässä selaimessa.";
+    }
+  }
+
+  function readSteps() {
+    const d = new Date(dateInput.value + "T12:00:00");
+    const key = "paivan-askeleet-" + localDate(d);
+
+    try {
+      const value = Number(localStorage.getItem(key));
+      const goal = Number(
+        localStorage.getItem("askeleiden-paivatavoite")
+      );
+
+      return {
+        count: Number.isFinite(value) && value > 0 ? value : 0,
+        goal: goal > 0 ? goal : 10000
+      };
+    } catch {
+      return { count: 0, goal: 10000 };
+    }
+  }
+
+  function render() {
+    const data = loadData();
+    const steps = readSteps();
+
+    $("summary-steps").textContent =
+      steps.count.toLocaleString("fi-FI");
+    $("summary-steps-goal").textContent =
+      "Tavoite: " + steps.goal.toLocaleString("fi-FI") + " askelta";
+    $("summary-steps-bar").style.width =
+      Math.min(100, steps.count / steps.goal * 100) + "%";
+    $("summary-steps-text").textContent =
+      steps.count >= steps.goal
+        ? "Päivän askeltavoite saavutettu! 🎉"
+        : "Tavoitteeseen " +
+          (steps.goal - steps.count).toLocaleString("fi-FI") +
+          " askelta";
+
+    $("water-total").textContent = data.water || 0;
+    $("water-bar").style.width =
+      Math.min(100, (data.water || 0) / WATER_GOAL * 100) + "%";
+
+    $("sleep-hours").value = data.sleep ?? "";
+    $("sleep-display").textContent = data.sleep ?? "–";
+
+    $("movement-minutes").value = data.movement ?? "";
+    $("movement-display").textContent = data.movement || 0;
+
+    $("meals-count").value = data.meals ?? "";
+    $("meals-display").textContent = data.meals || 0;
+
+    $("mood-select").value = data.mood || "";
+    $("mood-message").textContent =
+      data.mood || "Kaikki tunteet ovat sallittuja.";
+
+    $("wellness-tip").textContent =
+      (data.sleep !== undefined && data.sleep < 7)
+        ? "Jos olet väsynyt, rauhallinen ilta ja riittävä lepo voivat auttaa."
+        : (data.movement >= 30)
+        ? "Hienoa, että olet liikkunut! Muista myös palautuminen."
+        : "Juo vettä, syö säännöllisesti ja liiku vointisi mukaan.";
+  }
+
+  function update(field, value) {
+    const data = loadData();
+    data[field] = value;
+    saveData(data);
+    render();
+  }
+
+  ["sleep-hours", "movement-minutes", "meals-count"].forEach(id => {
+    $(id).addEventListener("change", () => {
+      const input = $(id);
+      const value = input.value === "" ? null : Number(input.value);
+
+      if (value !== null &&
+          (!Number.isFinite(value) || value < 0 ||
+           value > Number(input.max))) {
+        input.value = "";
+        return;
+      }
+
+      const field = {
+        "sleep-hours": "sleep",
+        "movement-minutes": "movement",
+        "meals-count": "meals"
+      }[id];
+
+      update(field, value);
+    });
+  });
+
+  $("mood-select").addEventListener("change", event => {
+    update("mood", event.target.value);
+  });
+
+  section.querySelectorAll("[data-water]").forEach(button => {
+    button.addEventListener("click", () => {
+      const data = loadData();
+      data.water = (data.water || 0) + Number(button.dataset.water);
+      update("water", data.water);
+    });
+  });
+
+  dateInput.addEventListener("change", () => {
+    if (dateInput.value) render();
+  });
+
+  // Päivitä yhteenveto, jos askelseuranta muuttaa tallennettuja tietoja.
+  window.addEventListener("storage", render);
+
+  render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-image: linear-gradient(rgba(15, 12, 17, 0.82), rgba(15, 12, 17, 0.88)),
+                      url("ranta.jpg");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: white;
+}
+
+/* Yläosa */
+header {
+    padding: 30px 50px 20px;
+}
+
+header h1 {
+    margin: 0;
+    color: #ff4f91;
+    font-size: 38px;
+}
+
+header p {
+    color: #d0c8ce;
+    margin-top: 8px;
+}
+
+/* Navigointi */
+nav {
+    padding: 15px 50px;
+    background-color: rgba(20, 16, 22, 0.9);
+    border-top: 1px solid #3a3038;
+    border-bottom: 1px solid #3a3038;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    margin-right: 30px;
+}
+
+nav a:hover {
+    color: #ff4f91;
+}
+
+/* Pääsisältö */
+main {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 25px;
+}
+
+main h2 {
+    color: #ff4f91;
+}
+
+/* Esittelyteksti */
+main > p {
+    color: #ddd5db;
+    font-size: 17px;
+    line-height: 1.6;
+}
+
+/* Seurantatiedot */
+ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-top: 25px;
+}
+
+li {
+    background-color: rgba(25, 21, 27, 0.95);
+    border: 1px solid #3d3039;
+    border-radius: 18px;
+    padding: 25px;
+    font-size: 18px;
+    transition: 0.2s;
+}
+
+/* Kun hiiri menee kortin päälle */
+li:hover {
+    transform: translateY(-5px);
+    border-color: #ff4f91;
+}
+
+/* Pieni pinkki korostus */
+li::first-letter {
+    color: #ff4f91;
+}
+
+.tavoite-tausta {
+    height: 12px;
+    background: #39313e;
+    border-radius: 20px;
+    margin-top: 22px;
+    overflow: hidden;
+}
+
+#tavoite-palkki {
+    height: 100%;
+    width: 50%;
+    background: linear-gradient(90deg, #ff4f91, #c51d79);
+    border-radius: 20px;
+    transition: width 0.2s;
+}
+
+#tavoite-teksti {
+    text-align: center;
+    margin-bottom: 0;
+}
+
+/* Footer */
+footer {
+    margin-top: 60px;
+    padding: 25px;
+    text-align: center;
+    background-color: rgba(15, 12, 17, 0.95);
+    color: #aaa0a8;
+}

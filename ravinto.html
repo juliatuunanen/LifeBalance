@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+	<meta charset="UTF-8">
+	<link href="tyyli.css" rel="stylesheet">
+	<title>Oma ravinto – LifeBalance</title>
+</head>
+<body>
+	<header>
+		<h1>LifeBalance</h1>
+	</header>
+
+	<main>
+        <h2> Oma ravinto</h2>  
+        <p> Täällä pystyt seuraamaan ravintotietojasi. </p>
+		<a href="seuranta.html">← Takaisin seurantaan</a>
+		<form id="ateria-lomake">
+		<label for="ateria-tyyppi">Aterian tyyppi</label>
+<select id="ateria-tyyppi">
+    <option value="Aamupala">🌅 Aamupala</option>
+    <option value="Lounas">☀️ Lounas</option>
+    <option value="Päivällinen">🌇 Päivällinen</option>
+    <option value="Välipala">🍎 Välipala</option>
+</select>
+
+<label for="ruoka">Mitä söit?</label>
+<input id="ruoka" type="text" placeholder="Esim. puuroa ja marjoja" required>
+
+<label for="lisatieto">Lisätieto</label>
+<input id="lisatieto" type="text" placeholder="Esim. jogurttia">
+
+<button type="submit">Lisää ateria +</button>
+</form>
+
+<div id="ateria-lista"></div>
+	</main>
+<script>
+const lomake = document.getElementById("ateria-lomake");
+const lista = document.getElementById("ateria-lista");
+
+lomake.addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const tyyppi = document.getElementById("ateria-tyyppi").value;
+    const ruoka = document.getElementById("ruoka").value.trim();
+    const lisatieto = document.getElementById("lisatieto").value.trim();
+
+    if (ruoka === "") return;
+
+    const kortti = document.createElement("div");
+    kortti.className = "ateria";
+
+    const otsikko = document.createElement("h3");
+    otsikko.textContent = tyyppi;
+
+    const kuvaus = document.createElement("p");
+    kuvaus.textContent = "🍽️ " + ruoka;
+
+    kortti.append(otsikko, kuvaus);
+
+    if (lisatieto !== "") {
+        const tieto = document.createElement("p");
+        tieto.textContent = lisatieto;
+        kortti.appendChild(tieto);
+    }
+
+    const poista = document.createElement("button");    
+    poista.textContent = "Poista ateria";
+    poista.type = "button";
+
+  
+
+    poista.addEventListener("click", function() {
+        kortti.remove();
+    });
+
+    kortti.appendChild(poista);
+    lista.appendChild(kortti);
+
+    lomake.reset();
+});
+</script>
+
+</body>
+</html>
